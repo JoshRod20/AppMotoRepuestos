@@ -1,6 +1,6 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/storage";
+// Importar los módulos de Firebase adecuados desde la versión modular
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore"; // Solo importa Firestore desde la versión modular
 
 const firebaseConfig = {
   apiKey: "AIzaSyAZQJWd6IPSroKNavrTioCcNrMW6TfusNE",
@@ -11,11 +11,10 @@ const firebaseConfig = {
   appId: "1:298277523449:web:1909243c6af16487e3b728",
 };
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+// Inicializa Firebase con la configuración modular
+const app = initializeApp(firebaseConfig);
 
-const appFirebase = initializeApp(firebaseConfig);
+// Obtener la referencia de Firestore
+const db = getFirestore(app);
 
-export { appFirebase, firebase };
+export { db };
