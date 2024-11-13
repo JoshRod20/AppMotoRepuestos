@@ -71,7 +71,7 @@ const EstadisticsPDF = ({ dataProducts }) => {
           <BarChart
             data={dataProducts}
             width={screenWidth - screenWidth * 0.1}
-            height={370}
+            height={420}
             chartConfig={{
               backgroundGradientFrom: "#00FFFF",
               backgroundGradientFromOpacity: 0.1,

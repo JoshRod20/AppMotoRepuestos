@@ -127,7 +127,6 @@ export default function Products() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>Formulario de Producto</Text>
 
       <Text>Nombre:</Text>
       <TextInput
@@ -189,14 +188,19 @@ export default function Products() {
         <Text>{producto.categoria || "Seleccionar Categoría"}</Text>
       </TouchableOpacity>
 
-      <Button title="Seleccionar Imagen" onPress={pickImage} />
+      <TouchableOpacity style={styles.button} onPress={pickImage}>
+        <Text style={styles.buttonText}>Seleccionar Imagen</Text>
+      </TouchableOpacity>
+
       {producto.imageUri && (
         <Image source={{ uri: producto.imageUri }} style={styles.image} />
       )}
 
-      <View style={{ marginBottom: 15, paddingVertical: 7 }}>
+      <View style={styles.buttonContainer}>
         {!uploading ? (
-          <Button title="Enviar" onPress={uploadData} />
+          <TouchableOpacity style={styles.button} onPress={uploadData}>
+            <Text style={styles.buttonText}>Enviar</Text>
+          </TouchableOpacity>
         ) : (
           <ActivityIndicator size={"small"} color="black" />
         )}
@@ -222,7 +226,13 @@ export default function Products() {
                 <Text style={styles.modalItem}>{categoria}</Text>
               </TouchableOpacity>
             ))}
-            <Button title="Cerrar" onPress={() => setModalVisible(false)} />
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cerrar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -242,6 +252,7 @@ const styles = StyleSheet.create({
   TextInput: {
     borderColor: "gray",
     borderWidth: 1,
+    borderRadius: 14,
     width: "100%",
     padding: 10,
     marginBottom: 15,
@@ -254,9 +265,28 @@ const styles = StyleSheet.create({
   categoriaText: {
     borderColor: "gray",
     borderWidth: 1,
-    padding: 10,
+    borderRadius: 14,
+    width: "100%",
+    height:50,
+    padding: 15,
     marginBottom: 15,
     textAlign: "center",
+  },
+  buttonContainer: {
+    marginBottom: 15,
+    paddingVertical: 7,
+  },
+  button: {
+    backgroundColor: "blue",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
