@@ -1,15 +1,15 @@
 {
   "expo": {
     "name": "MotoRepuestos",
-    "slug": "MotoRepuestos",
+    "slug": "moto-repuestos",
     "version": "1.0.0",
     "orientation": "portrait",
     "newArchEnabled": true,
-    "icon": "./assets/images.jpeg",
+    "icon": "./assets/H2R.jpeg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images.jpeg",
-      "resizeMode": "contain",
+      "image": "./assets/H2R.jpeg",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -17,16 +17,17 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images.jpeg",
+        "foregroundImage": "./assets/H2R.jpeg",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.kennrod20.motorepuestos"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "e87f38ad-1ffd-4233-9a03-6b5683fa44a5"
+        "projectId": "81a34cf1-ce65-4bbc-8305-b1f8ea96b93f"
       }
     },
     "owner": "kennrod20"
