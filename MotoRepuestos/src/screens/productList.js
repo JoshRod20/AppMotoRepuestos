@@ -250,6 +250,11 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
   },
+  textoLista: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
   botonStyle: {
     flexDirection: "row",
     alignItems: "center",

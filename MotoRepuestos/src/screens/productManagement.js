@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
-import { Card, Button, Icon } from "@rneui/themed";
+import { Card } from "@rneui/themed";
 import React, { useEffect, useState } from "react";
 import {
   collection,
@@ -30,7 +30,7 @@ export default function ProductManagement() {
   const [modalVisible, setModalVisible] = useState(false);
   const [productoEditado, setProductoEditado] = useState({});
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // Estado para la búsqueda
+  const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -68,13 +68,13 @@ export default function ProductManagement() {
       console.log("Error al obtener los datos:", error);
     } finally {
       setLoading(false);
-      setRefreshing(false); // Cuando termina el refresco, lo desactivamos
+      setRefreshing(false);
     }
   };
 
   const onRefresh = () => {
     setRefreshing(true);
-    obtenerProductos(); 
+    obtenerProductos();
   };
 
   const eliminarProducto = async (id) => {
@@ -101,11 +101,6 @@ export default function ProductManagement() {
           ([_, value]) => value !== undefined
         )
       );
-
-      // Verifica si la URL de la imagen fue actualizada
-      if (productoEditado.imageUrl !== productoEditado.imageUrl) {
-        fieldsToUpdate.imageUrl = productoEditado.imageUrl;
-      }
 
       const productoRef = doc(db, "repuestosMoto", productoEditado.id);
       await updateDoc(productoRef, fieldsToUpdate);
@@ -147,14 +142,13 @@ export default function ProductManagement() {
     }
   };
 
-  // Filtrar productos según la búsqueda
   const filteredProductos = productos.filter((producto) =>
     producto.nombreRepuesto.toLowerCase().includes(searchQuery.toLowerCase()) ||
     producto.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    producto.marca.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    producto.modelo.toLowerCase().includes(searchQuery.toLowerCase())
+    (producto.precio &&
+      producto.precio.toString().toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
+  
   return (
     <ScrollView
       style={styles.container}
@@ -166,17 +160,16 @@ export default function ProductManagement() {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <View>
-          {/* Campo de búsqueda */}
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar producto..."
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
           />
-
+  
           {filteredProductos.map((item) => (
             <View style={styles.contenedorCard} key={item.id}>
-              <Card>
+              <Card containerStyle={styles.cardContainer}>
                 <Card.Title style={styles.TextTituloCard}>
                   {item.nombreRepuesto}
                 </Card.Title>
@@ -184,7 +177,7 @@ export default function ProductManagement() {
                 <Card.Image
                   style={styles.image}
                   source={{
-                    uri: item.imageUrl, // Aquí cargará la URL actualizada de la base de datos
+                    uri: item.imageUrl,
                   }}
                 />
                 <Text style={styles.textoLista}>
@@ -197,27 +190,24 @@ export default function ProductManagement() {
                   Stock: {item.cantidadStock}
                 </Text>
                 <View style={styles.buttonContainer}>
-                  <Button
+                  <TouchableOpacity
                     style={styles.botonStyle}
-                    icon={<Icon name="edit" />}
-                    title="Editar"
                     onPress={() => editarProducto(item)}
-                  />
-                  <Button
-                    style={styles.botonStyle}
-                    icon={<Icon name="delete" />}
-                    title="Eliminar"
+                  >
+                    <Text style={styles.buttonText}>Editar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.botonStyle, { backgroundColor: "#d32f2f" }]}
                     onPress={() => eliminarProducto(item.id)}
-                    buttonStyle={{ backgroundColor: "red" }}
-                  />
+                  >
+                    <Text style={styles.buttonText}>Eliminar</Text>
+                  </TouchableOpacity>
                 </View>
               </Card>
             </View>
           ))}
         </View>
       )}
-
-      {/* Modal para editar producto */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -227,7 +217,6 @@ export default function ProductManagement() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Editar Producto</Text>
-
             <TextInput
               style={styles.input}
               value={productoEditado.nombreRepuesto}
@@ -254,14 +243,20 @@ export default function ProductManagement() {
             />
             <TextInput
               style={styles.input}
-              value={productoEditado.precio ? productoEditado.precio.toString() : ""}
+              value={
+                productoEditado.precio ? productoEditado.precio.toString() : ""
+              }
               onChangeText={(text) => handleInputChange("precio", text)}
               placeholder="Precio"
               keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
-              value={productoEditado.cantidadStock ? productoEditado.cantidadStock.toString() : ""}
+              value={
+                productoEditado.cantidadStock
+                  ? productoEditado.cantidadStock.toString()
+                  : ""
+              }
               onChangeText={(text) => handleInputChange("cantidadStock", text)}
               placeholder="Stock"
               keyboardType="numeric"
@@ -275,13 +270,13 @@ export default function ProductManagement() {
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: "#3364ff" }]}
                 onPress={handleUpdateProduct}
               >
                 <Text style={styles.buttonText}>Actualizar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: "#d32f2f" }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.buttonText}>Cancelar</Text>
@@ -300,70 +295,84 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     height: 40,
-    borderColor: "#ccc",
+    borderColor: "gray",
+    borderRadius: 10,
+    backgroundColor: "white",
     borderWidth: 1,
-    marginBottom: 20,
-    paddingLeft: 10,
+    paddingHorizontal: 10,
   },
-  contenedorCard: {
-    marginBottom: 20,
+  textoLista: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
-  TextTituloCard: {
-    fontSize: 20,
+  buttonText: {
+    color: "#FFF",
+    fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+  botonStyle: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#3364ff",
+    borderRadius: 14,
+    marginHorizontal: 5,
+  },
+  button: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#3364ff",
+    borderRadius: 14,
+    marginHorizontal: 5,
+  },
+  cardContainer: {
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    padding: 15,
+    marginBottom: 15,
   },
   image: {
     width: "100%",
     height: 300,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  textoLista: {
-    marginVertical: 5,
-    fontSize: 16,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  botonStyle: {
-    width: "48%",
+  TextTituloCard: {
+    fontSize: 22,
+    color: "#3364ff",
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "white",
+    width: "90%",
     padding: 20,
-    width: "80%",
+    backgroundColor: "#FFF",
     borderRadius: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
     borderWidth: 1,
+    borderColor: "#CCC",
+    padding: 10,
     marginBottom: 10,
-    paddingLeft: 10,
+    borderRadius: 8,
   },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "48%",
-  },
-  buttonText: {
-    color: "white",
-    textAlign: "center",
   },
 });
