@@ -14,34 +14,35 @@ const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: "blue", // Color de la etiqueta cuando está seleccionada
+        tabBarInactiveTintColor: "gray", // Color de la etiqueta cuando no está seleccionada
+        tabBarHideOnKeyboard: true, // Oculta el tab bar al abrir el teclado
+      }}
+    >
       <Tab.Screen
         name="Lista de Productos"
         component={productList}
         options={{
           tabBarLabel: "Productos",
-          tabBarIcon: ({ focused, size }) => (
+          tabBarIcon: ({ focused }) => (
             <Entypo name="list" size={26} color={focused ? "blue" : "gray"} />
           ),
-          tabBarActiveTintColor: "blue", // Color de la etiqueta cuando está seleccionada
-          tabBarInactiveTintColor: "gray", // Color de la etiqueta cuando no está seleccionada
         }}
       />
-
       <Tab.Screen
         name="Registrar Productos"
         component={products}
         options={{
           tabBarLabel: "Registrar Productos",
-          tabBarIcon: ({ focused, size }) => (
+          tabBarIcon: ({ focused }) => (
             <FontAwesome
               name="edit"
               size={26}
               color={focused ? "blue" : "gray"}
             />
           ),
-          tabBarActiveTintColor: "blue", // Color de la etiqueta cuando está seleccionada
-          tabBarInactiveTintColor: "gray", // Color de la etiqueta cuando no está seleccionada
         }}
       />
       <Tab.Screen
@@ -49,15 +50,13 @@ function MyTabs() {
         component={productManagement}
         options={{
           tabBarLabel: "Gestionar productos",
-          tabBarIcon: ({ focused, size }) => (
+          tabBarIcon: ({ focused }) => (
             <Foundation
               name="page-delete"
               size={26}
               color={focused ? "blue" : "gray"}
             />
           ),
-          tabBarActiveTintColor: "blue", // Color de la etiqueta cuando está seleccionada
-          tabBarInactiveTintColor: "gray", // Color de la etiqueta cuando no está seleccionada
         }}
       />
       <Tab.Screen
@@ -65,15 +64,13 @@ function MyTabs() {
         component={estadistics}
         options={{
           tabBarLabel: "Estadísticas",
-          tabBarIcon: ({ focused, size }) => (
+          tabBarIcon: ({ focused }) => (
             <Foundation
               name="graph-bar"
               size={26}
               color={focused ? "blue" : "gray"}
             />
           ),
-          tabBarActiveTintColor: "blue", // Color de la etiqueta cuando está seleccionada
-          tabBarInactiveTintColor: "gray", // Color de la etiqueta cuando no está seleccionada
         }}
       />
     </Tab.Navigator>

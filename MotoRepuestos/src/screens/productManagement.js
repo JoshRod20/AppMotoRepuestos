@@ -276,7 +276,7 @@ export default function ProductManagement() {
                 <Text style={styles.buttonText}>Actualizar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, { backgroundColor: "#d32f2f" }]}
+                style={[styles.button, { backgroundColor: "#d32f2f3" }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.buttonText}>Cancelar</Text>
