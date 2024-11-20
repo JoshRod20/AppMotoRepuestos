@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { appFirebase } from "../services/firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from 'expo-image-picker';
 
 export default function ProductManagement() {
   const db = getFirestore(appFirebase);
@@ -49,7 +50,7 @@ export default function ProductManagement() {
           marca,
           modelo,
           precio,
-          imageUrl,
+          imageUri,  
           cantidadStock,
         } = doc.data();
         docs.push({
@@ -59,7 +60,7 @@ export default function ProductManagement() {
           marca,
           modelo,
           precio,
-          imageUrl,
+          imageUri,  
           cantidadStock,
         });
       });
@@ -148,7 +149,28 @@ export default function ProductManagement() {
     (producto.precio &&
       producto.precio.toString().toLowerCase().includes(searchQuery.toLowerCase()))
   );
-  
+
+  // Función para abrir la galería y seleccionar una imagen
+const seleccionarImagen = async () => {
+  try {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProductoEditado((prev) => ({
+        ...prev,
+        imageUri: result.assets[0].uri,
+      }));
+    }
+  } catch (error) {
+    console.log("Error al seleccionar la imagen:", error);
+    Alert.alert("Error", "No se pudo seleccionar la imagen.");
+  }
+};
+
   return (
     <ScrollView
       style={styles.container}
@@ -166,7 +188,7 @@ export default function ProductManagement() {
             value={searchQuery}
             onChangeText={(text) => setSearchQuery(text)}
           />
-  
+
           {filteredProductos.map((item) => (
             <View style={styles.contenedorCard} key={item.id}>
               <Card containerStyle={styles.cardContainer}>
@@ -174,10 +196,11 @@ export default function ProductManagement() {
                   {item.nombreRepuesto}
                 </Card.Title>
                 <Card.Divider />
+                {/* Usamos imageUri directamente aquí */}
                 <Card.Image
                   style={styles.image}
                   source={{
-                    uri: item.imageUrl,
+                    uri: item.imageUri,  // Usamos imageUri desde Firestore
                   }}
                 />
                 <Text style={styles.textoLista}>
@@ -185,10 +208,8 @@ export default function ProductManagement() {
                 </Text>
                 <Text style={styles.textoLista}>Marca: {item.marca}</Text>
                 <Text style={styles.textoLista}>Modelo: {item.modelo}</Text>
-                <Text style={styles.textoLista}>Precio: ${item.precio}</Text>
-                <Text style={styles.textoLista}>
-                  Stock: {item.cantidadStock}
-                </Text>
+                <Text style={styles.textoLista}>Precio: C$ {item.precio}</Text>
+                <Text style={styles.textoLista}>Stock: {item.cantidadStock}</Text>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
                     style={styles.botonStyle}
@@ -209,170 +230,184 @@ export default function ProductManagement() {
         </View>
       )}
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Editar Producto</Text>
-            <TextInput
-              style={styles.input}
-              value={productoEditado.nombreRepuesto}
-              onChangeText={(text) => handleInputChange("nombreRepuesto", text)}
-              placeholder="Nombre del repuesto"
-            />
-            <TextInput
-              style={styles.input}
-              value={productoEditado.descripcion}
-              onChangeText={(text) => handleInputChange("descripcion", text)}
-              placeholder="Descripción"
-            />
-            <TextInput
-              style={styles.input}
-              value={productoEditado.marca}
-              onChangeText={(text) => handleInputChange("marca", text)}
-              placeholder="Marca"
-            />
-            <TextInput
-              style={styles.input}
-              value={productoEditado.modelo}
-              onChangeText={(text) => handleInputChange("modelo", text)}
-              placeholder="Modelo"
-            />
-            <TextInput
-              style={styles.input}
-              value={
-                productoEditado.precio ? productoEditado.precio.toString() : ""
-              }
-              onChangeText={(text) => handleInputChange("precio", text)}
-              placeholder="Precio"
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.input}
-              value={
-                productoEditado.cantidadStock
-                  ? productoEditado.cantidadStock.toString()
-                  : ""
-              }
-              onChangeText={(text) => handleInputChange("cantidadStock", text)}
-              placeholder="Stock"
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.input}
-              value={productoEditado.imageUrl}
-              onChangeText={(text) => handleInputChange("imageUrl", text)}
-              placeholder="URL de la imagen"
-            />
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: "#3364ff" }]}
-                onPress={handleUpdateProduct}
-              >
-                <Text style={styles.buttonText}>Actualizar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: "#d32f2f3" }]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <ScrollView contentContainerStyle={styles.modalScrollContent}>
+        <Text style={styles.modalTitle}>Editar Producto</Text>
+        <TextInput
+          style={styles.input}
+          value={productoEditado.nombreRepuesto}
+          onChangeText={(text) => handleInputChange("nombreRepuesto", text)}
+          placeholder="Nombre del repuesto"
+        />
+        <TextInput
+          style={styles.input}
+          value={productoEditado.descripcion}
+          onChangeText={(text) => handleInputChange("descripcion", text)}
+          placeholder="Descripción"
+        />
+        <TextInput
+          style={styles.input}
+          value={productoEditado.marca}
+          onChangeText={(text) => handleInputChange("marca", text)}
+          placeholder="Marca"
+        />
+        <TextInput
+          style={styles.input}
+          value={productoEditado.modelo}
+          onChangeText={(text) => handleInputChange("modelo", text)}
+          placeholder="Modelo"
+        />
+        <TextInput
+          style={styles.input}
+          value={
+            productoEditado.precio ? productoEditado.precio.toString() : ""
+          }
+          onChangeText={(text) => handleInputChange("precio", text)}
+          placeholder="Precio"
+          keyboardType="numeric"
+        />
+        <TextInput
+          style={styles.input}
+          value={
+            productoEditado.cantidadStock
+              ? productoEditado.cantidadStock.toString()
+              : ""
+          }
+          onChangeText={(text) => handleInputChange("cantidadStock", text)}
+          placeholder="Stock"
+          keyboardType="numeric"
+        />
+        <TouchableOpacity
+          style={[styles.button, { marginBottom: 10 }]}
+          onPress={seleccionarImagen}
+        >
+          <Text style={styles.buttonText}>Seleccionar Imagen</Text>
+        </TouchableOpacity>
+        {productoEditado.imageUri ? (
+          <Card.Image
+            style={styles.image}
+            source={{ uri: productoEditado.imageUri }}
+          />
+        ) : (
+          <Text style={{ textAlign: "center", marginBottom: 10 }}>
+            No se ha seleccionado ninguna imagen.
+          </Text>
+        )}
+        <View style={styles.modalButtons}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#3364ff" }]}
+            onPress={handleUpdateProduct}
+          >
+            <Text style={styles.buttonText}>Actualizar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#d32f2f" }]}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
+
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  searchInput: {
-    height: 40,
-    borderColor: "gray",
-    borderRadius: 10,
-    backgroundColor: "white",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-  },
-  textoLista: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  buttonText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  botonStyle: {
-    marginTop: 15,
-    padding: 10,
-    backgroundColor: "#3364ff",
-    borderRadius: 14,
-    marginHorizontal: 5,
-  },
-  button: {
-    marginTop: 15,
-    padding: 10,
-    backgroundColor: "#3364ff",
-    borderRadius: 14,
-    marginHorizontal: 5,
-  },
-  cardContainer: {
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-    padding: 15,
-    marginBottom: 15,
-  },
-  image: {
-    width: "100%",
-    height: 300,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  TextTituloCard: {
-    fontSize: 22,
-    color: "#3364ff",
-    fontWeight: "bold",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "90%",
-    padding: 20,
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#CCC",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-});
+  const styles = StyleSheet.create({
+    container: {
+      padding: 20,
+    },
+    searchInput: {
+      height: 40,
+      borderColor: "gray",
+      borderRadius: 10,
+      backgroundColor: "white",
+      borderWidth: 1,
+      paddingHorizontal: 10,
+    },
+    textoLista: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      marginBottom: 5,
+    },
+    buttonText: {
+      color: "#FFF",
+      fontSize: 16,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    botonStyle: {
+      marginTop: 15,
+      padding: 10,
+      backgroundColor: "#3364ff",
+      borderRadius: 14,
+      marginHorizontal: 5,
+    },
+    button: {
+      marginTop: 15,
+      padding: 10,
+      backgroundColor: "#3364ff",
+      borderRadius: 14,
+      marginHorizontal: 5,
+    },
+    cardContainer: {
+      borderRadius: 20,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 5,
+      elevation: 5,
+      padding: 15,
+      marginBottom: 15,
+    },
+    image: {
+      width: "100%",
+      height: 300,
+      borderRadius: 10,
+      marginBottom: 10,
+    },
+    TextTituloCard: {
+      fontSize: 22,
+      color: "#3364ff",
+      fontWeight: "bold",
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+      width: "90%",
+      height: "70%",
+      padding: 40,
+      backgroundColor: "#FFF",
+      borderRadius: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      marginBottom: 10,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: "#CCC",
+      padding: 10,
+      marginBottom: 10,
+      borderRadius: 8,
+    },
+    modalButtons: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+  });
+  

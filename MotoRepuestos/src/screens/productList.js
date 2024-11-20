@@ -37,7 +37,7 @@ export default function ProductList() {
           marca,
           modelo,
           precio,
-          imageUrl,
+          imageUri, 
           cantidadStock,
         } = doc.data();
         docs.push({
@@ -47,7 +47,7 @@ export default function ProductList() {
           marca,
           modelo,
           precio: precio ? precio.toString() : "",
-          imageUrl,
+          imageUri, 
           cantidadStock: cantidadStock ? cantidadStock.toString() : "0",
         });
       });
@@ -148,12 +148,12 @@ export default function ProductList() {
               <Card containerStyle={styles.cardContainer}>
                 <Card.Title style={styles.TextTituloCard}>{item.nombreRepuesto}</Card.Title>
                 <Card.Divider />
-                <Card.Image style={styles.image} source={{ uri: item.imageUrl }} />
+                <Card.Image style={styles.image} source={{ uri: item.imageUri }} />
                 <Text style={styles.textoLista}>Nombre: {item.nombreRepuesto}</Text>
                 <Text style={styles.textoLista}>Descripción: {item.descripcion}</Text>
                 <Text style={styles.textoLista}>Marca: {item.marca}</Text>
                 <Text style={styles.textoLista}>Modelo: {item.modelo}</Text>
-                <Text style={styles.textoLista}>Precio: ${item.precio}</Text>
+                <Text style={styles.textoLista}>Precio: C$ {item.precio}</Text>
                 <Text style={styles.textoLista}>Stock: {item.cantidadStock}</Text>
                 
                 <TouchableOpacity
@@ -306,4 +306,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-

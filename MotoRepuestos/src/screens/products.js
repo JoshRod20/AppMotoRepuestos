@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   Image,
   ScrollView,
@@ -14,8 +13,7 @@ import {
 import React, { useState } from "react";
 import { collection, getFirestore, addDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import { appFirebase } from "../services/firebaseConfig.js";
+import { appFirebase } from "../services/firebaseConfig";
 
 export default function Products() {
   const db = getFirestore(appFirebase);
@@ -62,14 +60,7 @@ export default function Products() {
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-
-      const newFileUri = FileSystem.documentDirectory + "product_image.jpg";
-      await FileSystem.copyAsync({
-        from: uri,
-        to: newFileUri,
-      });
-
-      setProductos({ ...producto, imageUri: newFileUri });
+      setProductos({ ...producto, imageUri: uri });
     }
   };
 
@@ -116,7 +107,7 @@ export default function Products() {
         marca: producto.marca,
         modelo: producto.modelo,
         precio: producto.precio,
-        imageUri: producto.imageUri,
+        imageUri: producto.imageUri, // Guardar solo la URI de la imagen
         cantidadStock: producto.cantidadStock,
         categoria: producto.categoria,
       });
@@ -125,9 +116,26 @@ export default function Products() {
     }
   };
 
+  const handleImagePress = () => {
+    Alert.alert(
+      "Eliminar imagen",
+      "¿Estás seguro de que quieres eliminar esta imagen?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => setProductos({ ...producto, imageUri: null }),
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
-
       <Text>Nombre:</Text>
       <TextInput
         style={styles.TextInput}
@@ -193,7 +201,9 @@ export default function Products() {
       </TouchableOpacity>
 
       {producto.imageUri && (
-        <Image source={{ uri: producto.imageUri }} style={styles.image} />
+        <TouchableOpacity onPress={handleImagePress}>
+          <Image source={{ uri: producto.imageUri }} style={styles.image} />
+        </TouchableOpacity>
       )}
 
       <View style={styles.buttonContainer}>
@@ -267,7 +277,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 14,
     width: "100%",
-    height:50,
+    height: 50,
     padding: 15,
     marginBottom: 15,
     textAlign: "center",
